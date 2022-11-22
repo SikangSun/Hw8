@@ -6,6 +6,7 @@ export function Index() {
   const [showFeed, setShowFeed] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");  
+  const [password, setPassword] = useState("");
   const [json, setJson] = useState([]);
 
   useEffect(() => {
@@ -24,14 +25,21 @@ export function Index() {
     const handleSubmit = async (e) => {
       e.preventDefault();
       const obj = {
+        "password": password,
         "title":title,
         "content":content
       }
       const requestOptions = {
         headers:  { 'Content-Type':'application/json'}
       }
-      const res = await axios.post(`${url}/create`, obj, requestOptions);
-      setShowCreation(false);
+      try {
+        const res = await axios.post(`${url}/create`, obj, requestOptions);
+        setShowCreation(false);
+      } catch (err) {
+        console.log(err)
+        alert(err.response.data)
+      }
+
     }
     return (
       <>
@@ -42,6 +50,9 @@ export function Index() {
           Content:
         </div>
           <textarea value={content} cols="30" rows="10" onChange={(e) => setContent(e.target.value)}></textarea>
+          <div>
+          Passowrd:<textarea value={password} cols="30" rows="1" onChange={(e) => setPassword(e.target.value)}></textarea>
+        </div>
         <button onClick={(e) => handleSubmit(e)}>Submit</button>
       </>
     )
@@ -61,12 +72,21 @@ export function Index() {
             <div>
             {obj.content}
             </div>
+            <button value={obj._id} onClick={handleDelete}>Delete</button>
             <hr/>
           </div>
         )})}
       </div>
       </>
     )
+  }
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    const requestOptions = {
+      headers:  { 'Content-Type':'application/json'}
+    }
+    const res = axios.delete(`${url}/delete/${e.target.value}`, requestOptions)
   }
   const handleCreation = (e) => {
     e.preventDefault();
